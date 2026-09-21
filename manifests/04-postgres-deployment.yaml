@@ -5,6 +5,8 @@ metadata:
   namespace: desafio-kubernetes
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: postgres
@@ -15,7 +17,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:16
+          image: postgres:16.15
           ports:
             - containerPort: 5432
           envFrom:
@@ -23,6 +25,21 @@ spec:
                 name: postgres-credentials
             - configMapRef:
                 name: postgres-config
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data

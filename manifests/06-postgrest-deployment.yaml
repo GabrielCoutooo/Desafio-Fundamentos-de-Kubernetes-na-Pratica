@@ -4,7 +4,7 @@ metadata:
   name: postgrest
   namespace: desafio-kubernetes
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: postgrest
@@ -15,16 +15,43 @@ spec:
     spec:
       containers:
         - name: postgrest
-          image: postgrest/postgrest:latest
+          image: postgrest/postgrest:v16.3
           ports:
-            - containerPort: 3000
+            - name: http
+              containerPort: 3000
+            - name: admin
+              containerPort: 3001
           env:
             - name: PGRST_DB_URI
               valueFrom:
                 secretKeyRef:
                   name: postgres-credentials
                   key: PGRST_DB_URI
-            - name: PGRST_DB_SCHEMA
+            - name: PGRST_DB_SCHEMAS
               value: "public"
             - name: PGRST_DB_ANON_ROLE
               value: "admin"
+            - name: PGRST_ADMIN_SERVER_PORT
+              value: "3001"
+            - name: PGRST_LOG_LEVEL
+              value: "info"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: admin
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: admin
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
