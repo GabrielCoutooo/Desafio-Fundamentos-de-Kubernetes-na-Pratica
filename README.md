@@ -278,14 +278,11 @@ réplicas repetidamente por picos curtos de tráfego).
   (superusuário)** — simplificação consciente para manter o desafio direto.
   Em produção, o correto seria criar um *role* específico no PostgreSQL com
   permissões restritas apenas às tabelas que a API deve expor.
-- **A tabela `items` não é criada automaticamente pelos manifests** — ela foi
-  criada manualmente durante o desenvolvimento com
-  `kubectl exec -it deployment/postgres -- psql -U admin -d desafio_db -c "CREATE TABLE items (id serial primary key, name text not null, created_at timestamptz default now());"`.
-  Num cluster novo (PVC recriado do zero), é preciso repetir esse comando
-  antes de a API conseguir servir `/items`. Uma evolução natural seria mover
-  essa criação para um script `init.sql` num ConfigMap, montado em
-  `/docker-entrypoint-initdb.d` no container do Postgres, que roda
-  automaticamente na primeira inicialização do volume.
+- **A tabela `items` é criada automaticamente via `init.sql`** — um script
+  SQL num ConfigMap (`03b-postgres-init.yaml`), montado em
+  `/docker-entrypoint-initdb.d` no container do Postgres, roda
+  automaticamente na primeira inicialização de um volume vazio, criando a
+  tabela sem necessidade de comando manual.
 - **Sem `storageClassName` explícito no PVC** — o minikube já vem com uma
   `StorageClass` padrão habilitada (`default-storageclass`), então omitir o
   campo deixa o Kubernetes provisionar o volume automaticamente.
