@@ -18,6 +18,7 @@ declarado em manifests YAML versionáveis.
 - [Estrutura do repositório](#estrutura-do-repositório)
 - [Reflexões do desafio](#reflexões-do-desafio)
 - [Checklist de requisitos](#checklist-de-requisitos)
+- [Limpeza](#limpeza)
 
 ## Sobre o projeto
 
@@ -336,3 +337,17 @@ picos breves de tráfego.
 - [x] Manifests versionados em arquivos YAML organizados
 - [x] README documentando como aplicar e testar o projeto
 - [x] **Bônus:** Horizontal Pod Autoscaler configurado e testado com geração de carga real
+
+## Limpeza
+
+Para remover todos os recursos do desafio de uma vez, exclua o namespace
+completo:
+
+```bash
+kubectl delete namespace desafio-kubernetes
+```
+
+### Atenção
+
+**Esse comando remove todos os recursos do desafio, incluindo o PostgreSQL e
+os dados armazenados no PVC.**
